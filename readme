@@ -5,6 +5,16 @@ sudo nano /etc/systemd/system/sense.service
 sudo systemctl edit sense.service
 sudo systemctl status sense.service
 
+sudo systemctl disable sense.service
+sudo systemctl daemon-reload
+sudo systemctl enable sense.service
+sudo systemctl start sense.service
+sudo systemctl status sense.service
+
+Test service
+sudo systemctl start sense.service
+sudo systemctl stop sense.service
+
 [Unit]
 # After=network.service
 Description=My App
@@ -19,7 +29,7 @@ ExecStart=/code/scripts/sense.sh
 WantedBy=multi-user.target
 # WantedBy=default.target
 
-sudo chmod 744 /code/scripts/sense.sh
+sudo chmod 744 start-env.sh
 sudo chmod 664 /etc/systemd/system/sense.service
 
 sudo systemctl daemon-reload
@@ -27,3 +37,4 @@ sudo systemctl enable sense.service
 
 Test service
 sudo systemctl start sense.service
+sudo systemctl stop sense.service

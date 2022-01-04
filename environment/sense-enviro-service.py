@@ -4,8 +4,12 @@ from random import randint
 import time
 import datetime
 import sys
+from mqtt_client import MqttClient
 
 is_shutdown = False
+
+client = MqttClient()
+client.say_hello()
 
 def stop(sig, frame):
   print(f"SIGTERM at {datetime.datetime.now()}")
@@ -47,31 +51,50 @@ def pick_random_colour():
   random_blue = randint(0, 255)
   return (random_red, random_green, random_blue)
 
+# Get the temperature of the CPU for compensation
+def get_cpu_temperature():
+    with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+        temp = f.read()
+        temp = int(temp) / 1000.0
+    return temp
+
 try:
-  counter = 0
+  second = 0
+  period = 1*60
+
+  env_value_h = 0
+  env_value_t = 0
+  env_value_ta = 0
+  env_value_p = 0
+  cpu_temp = 0
+
   while not is_shutdown:
-    counter += 1
-    env_value_h = sense.get_humidity()
-    env_value_t = sense.get_temperature()
-    env_value_ta = sense.get_temperature_from_pressure()
-    env_value_p = sense.get_pressure()
     
-    env_value_h = round(env_value_h, 2)
-    env_value_t = round(env_value_t, 2)
-    env_value_ta = round(env_value_ta, 2)
-    env_value_p = round(env_value_p, 2)
-    # print(f"Temp: {env_value_t}")
-    # print(f"Hum: {env_value_h}")
-    # print(f"Press: {env_value_p}")
+    if second % period == 0:
+      env_value_h = sense.get_humidity()
+      env_value_t = sense.get_temperature()
+      env_value_ta = sense.get_temperature_from_pressure()
+      env_value_p = sense.get_pressure()
+      cpu_temp = get_cpu_temperature()
+      
+      env_value_h = round(env_value_h, 2)
+      env_value_t = round(env_value_t, 2)
+      env_value_ta = round(env_value_ta, 2)
+      env_value_p = round(env_value_p, 2)
+      cpu_temp = round(cpu_temp, 2)
+
+      if second % 10 == 0:
+        sense.show_message(f"{env_value_ta}", text_colour=red, back_colour=void, scroll_speed=0.05)
     
-    sys.stdout.write(f"Temp: {env_value_t} Temp acc: {env_value_ta}  Hum: {env_value_h} Press: {env_value_p} \r")
+    if second % 3 == 0:
+      sense.set_pixel(randint(1,6),randint(1,6),pick_random_colour())
+    
+    sys.stdout.write(f"Sec: {second} Temp: {env_value_t} Temp acc: {env_value_ta} CPU Temp: {cpu_temp}  Hum: {env_value_h} Press: {env_value_p} \r")
     sys.stdout.flush()
 
-    if counter == 10:
-      sense.show_message(f"{env_value_ta}", text_colour=red, back_colour=void, scroll_speed=0.05)
-      counter = 0
-    #sense.show_letter("2",  pick_random_colour())
     time.sleep(1)
+    sense.clear()
+    second += 1
 except KeyboardInterrupt as e:
   sense.clear()
 except:
