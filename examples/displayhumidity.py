@@ -21,10 +21,10 @@ def pick_random_colour():
 
 try:
   while True:
-    temp = sense.get_temperature()
-    temp = round(temp, 2)
-    print(temp)
-    sense.show_message(str(temp), text_colour=red, back_colour=pick_random_colour(), scroll_speed=0.05)
+    env_value = sense.get_humidity()
+    env_value = round(env_value, 2)
+    print(f"Hum: {env_value}")
+    sense.show_message(str(env_value), text_colour=red, back_colour=pick_random_colour(), scroll_speed=0.05)
     #sense.show_letter("2",  pick_random_colour())
     time.sleep(0.5)
 except KeyboardInterrupt as e:
