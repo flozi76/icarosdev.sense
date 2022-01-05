@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "SSH FS - raspberrypi-1.local",
+			"uri": "ssh://raspberrypi-1.local/home/pi/app"
+		}
+	]
+}

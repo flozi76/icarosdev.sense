@@ -4,12 +4,12 @@ from random import randint
 import time
 import datetime
 import sys
-from mqtt_client import MqttClient
+from mqtt_client_service import MqttClientService
+import paho.mqtt.client as mqtt
 
 is_shutdown = False
-
-client = MqttClient()
-client.say_hello()
+mqtt_client = mqtt.Client()
+client = MqttClientService(mqtt_client)
 
 def stop(sig, frame):
   print(f"SIGTERM at {datetime.datetime.now()}")
@@ -35,6 +35,8 @@ while not device_ready:
 
 sense = SenseHat()
 sense.clear()
+sense.set_rotation(180)
+sense.low_light = True
 
 red = (255, 0, 0)
 blue = (0, 0, 255)
@@ -60,7 +62,7 @@ def get_cpu_temperature():
 
 try:
   second = 0
-  period = 1*60
+  period = 5
 
   env_value_h = 0
   env_value_t = 0
@@ -73,30 +75,28 @@ try:
     if second % period == 0:
       env_value_h = sense.get_humidity()
       env_value_t = sense.get_temperature()
-      env_value_ta = sense.get_temperature_from_pressure()
+      env_value_tp = sense.get_temperature_from_pressure()
+      env_value_th = sense.get_temperature_from_humidity()
       env_value_p = sense.get_pressure()
       cpu_temp = get_cpu_temperature()
       
-      env_value_h = round(env_value_h, 2)
-      env_value_t = round(env_value_t, 2)
-      env_value_ta = round(env_value_ta, 2)
-      env_value_p = round(env_value_p, 2)
-      cpu_temp = round(cpu_temp, 2)
+      client.send_environment_data(env_value_h, env_value_t, env_value_th, env_value_tp, env_value_p, cpu_temp)
 
-      if second % 10 == 0:
-        sense.show_message(f"{env_value_ta}", text_colour=red, back_colour=void, scroll_speed=0.05)
+      env_value_t = round(env_value_t, 1)
+
+      sense.show_message(f"{env_value_t}", text_colour=red, back_colour=void, scroll_speed=0.05)
     
     if second % 3 == 0:
-      sense.set_pixel(randint(1,6),randint(1,6),pick_random_colour())
+      sense.set_pixel(randint(0,7),randint(0,7),pick_random_colour())
+      sense.set_pixel(randint(0,7),randint(0,7),pick_random_colour())
+      sense.set_pixel(randint(0,7),randint(0,7),pick_random_colour())
+      sense.set_pixel(randint(0,7),randint(0,7),pick_random_colour())
     
-    sys.stdout.write(f"Sec: {second} Temp: {env_value_t} Temp acc: {env_value_ta} CPU Temp: {cpu_temp}  Hum: {env_value_h} Press: {env_value_p} \r")
-    sys.stdout.flush()
 
     time.sleep(1)
     sense.clear()
     second += 1
 except KeyboardInterrupt as e:
   sense.clear()
-except:
+finally:
   sense.clear()
-  print("Unexpected error:", sys.exc_info()[0])
