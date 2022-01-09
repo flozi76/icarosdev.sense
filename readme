@@ -16,13 +16,13 @@ sudo systemctl start sense.service
 sudo systemctl stop sense.service
 
 [Unit]
-# After=network.service
-Description=My App
+After=network.service
+Description=Sense Environment Service
 
 [Service]
 Type=simple
-# WorkingDirectory=/code/python/sense
-ExecStart=/code/scripts/sense.sh
+WorkingDirectory=/home/pi/app/icarosdev.sense
+ExecStart=/home/pi/app/icarosdev.sense/start-env.sh
 # User=do-user
 
 [Install]

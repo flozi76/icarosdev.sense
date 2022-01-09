@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 class MqttClientService:
 
+    topic = "topic/environment/data"
     mqtt_broker = "raspberrypi.local"
     mqtt_broker_port = 1883
     def __init__(self, mqtt_client):
@@ -48,7 +49,7 @@ class MqttClientService:
         env_data_str = json.dumps(json_env_data)
 
         
-        self.mqtt_client.publish("topic/environment/data", env_data_str)
+        self.mqtt_client.publish(self.topic, env_data_str, qos=1)
 
 
         humidity = round(environment_data['humidity'], 1)

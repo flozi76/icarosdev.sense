@@ -6,6 +6,10 @@
 		{
 			"name": "SSH FS - raspberrypi-1.local",
 			"uri": "ssh://raspberrypi-1.local/home/pi/app"
+		},
+		{
+			"name": "SSH FS - raspberrypi-2.local",
+			"uri": "ssh://raspberrypi-2.local/home/pi/app"
 		}
 	]
 }

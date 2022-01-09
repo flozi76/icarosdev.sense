@@ -1,8 +1,8 @@
 import signal
-from sense_hat import SenseHat
 import time
 import datetime
 import sys
+from sense_hat import SenseHat
 from mqtt_client_service import MqttClientService
 import paho.mqtt.client as mqtt
 from sense_service import SenseService
@@ -55,7 +55,7 @@ void = (0, 0, 0)
 
 try:
   second = 0
-  period = 300
+  period = 60 * 15
   splash_period = 60
 
   while not is_shutdown:
