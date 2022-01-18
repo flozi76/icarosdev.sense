@@ -1,16 +1,36 @@
 from random import randint
 import time
+import logging
+from sense_hat import SenseHat
+
+logging.basicConfig(
+    format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 class SenseService:
 
-    cpu_compensation_factor = 13.5
+    cpu_compensation_factor = 8.5
+    pressure_compensation = 65.9
+    humidity_compensation = 0
+    
+    red = (255, 0, 0)
+    blue = (0, 0, 255)
+    green = (0, 255, 0)
+    white = (255, 255, 255)
+    yellow = (255, 255, 0)
+    void = (0, 0, 0)
 
-    def __init__(self, sense_client):
+    def __init__(self):
+        sense_client = SenseHat()
+        sense_client.clear()
+        sense_client.set_rotation(180)
+        sense_client.low_light = True
         self.sense_client = sense_client
         self.initialize_joistick()
 
     def initialize_joistick(self):
-        print("Initializing stick ...")
+        logging.info("Initializing stick ...")
 
     # Get the temperature of the CPU for compensation
     def get_cpu_temperature(self):
@@ -34,10 +54,17 @@ class SenseService:
         cpu_temp = self.get_cpu_temperature()
 
         temperature_compensated = self.cmpensate_temperature(temperature, temperature_pressure, temperature_humidity, cpu_temp)
-        return {'temperature': temperature_compensated, 'humidity': humidity ,'pressure': pressure, 'cpu_temperature' : cpu_temp}
+        pressure_compensated = pressure + self.pressure_compensation
+        humidity_compensated = humidity + self.humidity_compensation
 
+        return {'temperature': temperature_compensated, 'humidity': humidity_compensated ,'pressure': pressure_compensated, 'cpu_temperature' : cpu_temp}
 
+    def show_red_message(self, message):
+        self.sense_client.show_message(message, text_colour=self.red, back_colour=self.void, scroll_speed=0.05)
 
+    def clear(self):
+        self.sense_client.clear()
+        
     # Generate a random colour
     def pick_random_colour(self):
         random_red = randint(0, 255)
