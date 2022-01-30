@@ -78,7 +78,7 @@ except:
 
 try:
   second = 0
-  period = 60 * 10
+  period = 60 * 5
   splash_period = 60
 
   while not is_shutdown:
