@@ -1,0 +1,16 @@
+[Unit]
+After=network.service
+Description=Sense Environment Background Client Service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/app/icarosdev.sense
+ExecStart=/home/pi/app/icarosdev.sense/start-env.sh
+Restart=always
+Environment="PYTHONPATH=$PYTHONPATH:/home/pi/.local/lib/python3.9/site-packages"
+
+# User=do-user
+
+[Install]
+WantedBy=multi-user.target
+# WantedBy=default.target
